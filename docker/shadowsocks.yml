@@ -1,0 +1,16 @@
+shadowsocks:
+  image: wuqz/sss:latest
+  environment:
+  - PASSWORD=yuyuko
+  ports:
+  - 8388:8388
+lkl:
+  image: wuqz/lkl:latest
+  privileged: true
+  links:
+  - shadowsocks
+  environment:
+  - TARGET_HOST=shadowsocks
+  - TARGET_PORT=8388
+  ports:
+  - 8888:8888
