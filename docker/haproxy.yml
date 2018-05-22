@@ -1,0 +1,14 @@
+version: '2'
+services:
+  web:
+    image: daocloud.io/daocloud/dao-2048
+    environment:
+    - VIRTUAL_HOST=2048.yuyuko.me
+  lb:
+    image: daocloud.io/daocloud/dockercloud-haproxy
+    links:
+    - web
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+    - 80:80
