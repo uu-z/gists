@@ -1,0 +1,36 @@
+version: '2'
+services:
+  proxy:
+    image: traefik
+    command: --web --docker --docker.domain=yuyuko.me --logLevel=DEBUG
+    networks:
+    - proxy
+    ports:
+    - 80:80
+    - 8080:8080
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+    - /dev/null:/traefik.toml
+    labels:
+    - traefik.backend=traefik
+    - traefik.frontend.rule=Host:proxy.yuyuko.me
+    - traefik.port=8080
+    - traefik.docker.network=traefik_proxy
+  server:
+    image: portainer/portainer
+    command: -H unix:///var/run/docker.sock
+    networks:
+    - proxy
+    labels:
+    - traefik.backend=portainer
+    - traefik.frontend.rule=Host:admin.yuyuko.me
+    - traefik.docker.network=traefik_proxy
+    - traefik.port=9000
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+    - portainer:/data
+networks:
+  proxy:
+    driver: bridge
+volumes:
+  portainer:
