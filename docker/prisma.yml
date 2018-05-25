@@ -1,0 +1,43 @@
+version: '2'
+services:
+  prisma:
+    image: prismagraphql/prisma:1.8
+    restart: always
+    networks:
+    - traefik_proxy
+    ports:
+    - 4466:4466
+    environment:
+      PRISMA_CONFIG:  |
+        port: 4466
+        # uncomment the next line and provide the env var PRISMA_MANAGEMENT_API_SECRET=my-secret to activate cluster security
+        # managementApiSecret: my-secret
+        databases:
+          default:
+            connector: postgres
+            host: postgres
+            port: 5432
+            user: prisma
+            password: prisma
+            migrations: true
+    labels:
+    - traefik.backend=prisma
+    - traefik.frontend.rule=Host:api.yuyuko.me
+    - traefik.docker.network=traefik_proxy
+    - traefik.port=4466
+  postgres:
+    image: postgres
+    restart: always
+    ports:
+    - 5432:5432
+    environment:
+      POSTGRES_USER: prisma
+      POSTGRES_PASSWORD: prisma
+    volumes:
+    - postgres:/var/lib/postgresql/data
+volumes:
+  postgres:
+networks:
+  traefik_proxy:
+    external:
+      name: tokyo2-proxy_proxy
