@@ -1,20 +1,35 @@
-const axios = require("axios")
-const _ = require("lodash")
+let a = require("axios")
+let fetch = require("node-fetch")
+let cheerio = require("cheerio")
 
-const crawl = async () => {
-  const start = db.video.count()
-  const end = start + 50
 
-  let req = await Promise.all(
-    _.range(start, end)
-      .map(i => `http://api.bilibili.com/archive_stat/stat?aid=${i}`)
-      .map(i => axios.get(i))
-  )
+let main = async () => {
+  let data = (await a("https://www.bilibili.com/ranking")).data
+  let $ = cheerio.load(data)
+  let urls = $(".img a").map((i, e) => `https:${$(e).prop("href")}`).get()
 
-  let data = req.map(i => i.data)
-  db.video.insertMany(data)
+  urls.forEach(url => {
+    getDanmus(url)
+  })
 }
 
-_.times(2000, i => {
-  crawl()
-})
+
+let getDanmus = async (url) => {
+  let zeroData = (await a(url)).data
+  let cid = zeroData.match(/cid=\d+/)[0].substring(4)
+  let aid = url.match(/av\d+/)[0].substring(2)
+
+  let cxml = await (await fetch(`http://comment.bilibili.com/${cid}.xml`)).text()
+  let $xml = cheerio.load(cxml, {
+    xmlMode: true
+  })
+  let danmus = $xml("d").map((i, e) => $xml(e).text()).get()
+
+  db.test.insert({
+    cid,
+    aid,
+    danmus
+  })
+}
+
+main()
