@@ -12,7 +12,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     deploy:
       placement:
-        constraints: [node.role == webgateway]
+        constraints: [node.labels.type == webgateway]
       labels:
         - traefik.frontend.rule=Host:proxy.yuyuko.me
         - traefik.port=8080
