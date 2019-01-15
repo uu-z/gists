@@ -1,0 +1,15 @@
+version: "3.6"
+
+services:
+  ss:
+    image: shadowsocks/shadowsocks-libev
+    ports:
+      - "6379:8388/tcp"
+      - "6379:8388/udp"
+    environment:
+      - METHOD=aes-256-gcm
+      - PASSWORD=yuyuko
+    restart: always
+    deploy:
+      placement:
+        constraints: [node.labels.type == webgateway]

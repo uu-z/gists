@@ -1,0 +1,16 @@
+version: "3.6"
+services:
+  whoami:
+    image: emilevauge/whoami
+    networks:
+      - traefik
+    deploy:
+      labels:
+        - "traefik.port=80"
+        - "traefik.docker.network=traefik"
+        - "traefik.backend=whoami"
+        - "traefik.frontend.rule=Host:test.yuyuko.me"
+        - "traefik.backend.loadbalancer.sticky=true"
+networks:
+  traefik:
+    external: true
