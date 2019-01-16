@@ -5,12 +5,14 @@ services:
     networks:
       - traefik
     deploy:
+      replicas: 2
+      placement:
+        constraints: [node.role == worker]
       labels:
         - "traefik.port=80"
         - "traefik.docker.network=traefik"
-        - "traefik.backend=whoami"
-        - "traefik.frontend.rule=Host:test.yuyuko.me"
-        - "traefik.backend.loadbalancer.sticky=true"
+        - "traefik.frontend.rule=Host: test.yuyuko.me"
+
 networks:
   traefik:
     external: true

@@ -12,4 +12,4 @@ services:
     restart: always
     deploy:
       placement:
-        constraints: [node.labels.type == webgateway]
+        constraints: [node.labels.ss == true]
