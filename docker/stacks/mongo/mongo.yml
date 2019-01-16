@@ -1,0 +1,37 @@
+version: "3"
+services:
+  mongo1:
+    image: mongo:3.4
+    command: mongod --smallfiles --replSet rs1 --noauth --oplogSize 3
+    container_name: mongo1
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo-data-1:/data/db
+    networks:
+      - mongo
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == worker0
+  mongo2:
+    image: mongo:3.4
+    command: mongod --smallfiles --replSet rs1 --noauth --oplogSize 3
+    container_name: mongo1
+    ports:
+      - 27018:27017
+    volumes:
+      - mongo-data-2:/data/db
+    networks:
+      - mongo
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == worker1
+networks:
+  mongo:
+    driver: overlay
+
+volumes:
+  mongo-data-1:
+  mongo-data-2:
