@@ -1,27 +1,22 @@
 version: "3.6"
 services:
-  server:
-    image: portainer/portainer
-    command: -H unix:///var/run/docker.sock
+  proxy:
+    image: traefik
+    command: -c /dev/null --web --docker --docker.swarmmode --docker.watch --docker.domain="awsl.me" --logLevel=DEBUG
     networks:
       - traefik
     ports:
-      - "9000:9000"
+      - 80:80
+      - 8080:8080
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - portainer_data:/data
     deploy:
       placement:
-        constraints:
-          - node.role == manager
+        constraints: [node.labels.type == webgateway]
       labels:
-        - "traefik.port=80"
-        - "traefik.docker.network=traefik"
-        - "traefik.frontend.rule=Host: admin.awsl.me"
-
+        - traefik.frontend.rule=Host:proxy.awsl.me
+        - traefik.port=8080
+        - traefik.docker.network=traefik
 networks:
   traefik:
     external: true
-
-volumes:
-  portainer_data:
