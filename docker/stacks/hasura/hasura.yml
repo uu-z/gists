@@ -1,0 +1,40 @@
+version: "3.6"
+services:
+  postgres:
+    image: postgres
+    networks:
+      - traefik
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: prisma
+      POSTGRES_PASSWORD: prisma
+    volumes:
+      - db_data:/var/lib/postgresql/data
+  graphql-engine:
+    image: hasura/graphql-engine:v1.0.0-alpha38
+    networks:
+      - traefik
+    ports:
+      - "8002:8080"
+    depends_on:
+      - "postgres"
+    restart: always
+    environment:
+      HASURA_GRAPHQL_DATABASE_URL: postgres://prisma:prisma@postgres:5432/postgres
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true" # set to "false" to disable console
+      ## uncomment next line to set an admin secret
+      HASURA_GRAPHQL_ADMIN_SECRET: awsl
+    deploy:
+      replicas: 1
+      labels:
+        - "traefik.port=8080"
+        - "traefik.docker.network=traefik"
+        - "traefik.frontend.rule=Host: hasura.awsl.me"
+volumes:
+  db_data:
+
+networks:
+  traefik:
+    external: true
